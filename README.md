@@ -1,2 +1,2 @@
 # tds
-Tools for Data Science
+This repo is for studying Tools for Data Science
