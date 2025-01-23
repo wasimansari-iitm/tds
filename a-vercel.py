@@ -1,10 +1,18 @@
+import os
+import json
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
 from typing import List, Optional
 
-# Load the CSV file
-data = pd.read_csv("q-vercel-python.csv")  # Ensure this path is correct
+# Load the JSON file
+current_dir = os.path.dirname(__file__)  # Get the directory of the current script
+json_file_path = os.path.join(current_dir, "q-vercel-python.json")  # Construct the path to marks.json
+
+with open(json_file_path, "r") as f:  # Open the JSON file
+    data = json.load(f)  # Load the data from the file
+
+# Create a dictionary for quick lookups
+marks_dict = {item['name']: item['marks'] for item in data}
 
 # Create FastAPI instance
 app = FastAPI()
@@ -20,11 +28,7 @@ app.add_middleware(
 
 @app.get("/api")
 async def get_marks(name: Optional[List[str]] = Query(None)):
-    # Convert DataFrame to a dictionary for easy lookup
-    marks_dict = pd.Series(data.marks.values, index=data.name).to_dict()
-    
     if name:
-        # Get marks for requested names
         marks = [marks_dict.get(n, 0) for n in name]  # Default to 0 if not found
     else:
         marks = []
